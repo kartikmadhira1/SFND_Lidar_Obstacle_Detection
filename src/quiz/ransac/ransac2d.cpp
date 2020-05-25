@@ -66,38 +66,43 @@ pcl::visualization::PCLVisualizer::Ptr initScene()
 std::unordered_set<int> Ransac(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, int maxIterations, float distanceTol)
 {
 	std::unordered_set<int> inliersResult;
-	srand(time(NULL));
-	
-	// TODO: Fill in this function
-	// while (maxIterations >= 0) {
+	srand((unsigned)time(NULL));
+ 	std::random_device rd;  //Will be used to obtain a seed for the random number engine
+    std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
 
 		// Randomly sample two points 
 		// Get the maximum number of possible indices.
-		int max_inliers = 0;
+	int max_inliers = 0;
 
-		std::unordered_set<int> inliersIter;
-		std::set<int> rand_set;
-		// int arr[3];
-		while (maxIterations > 0) {
-			// cloud->points.size();
-			// int firstInd = rand()%((cloud->points.size() - 1) + 1);
-			// int secInd = rand()%((cloud->points.size() - 1) + 1);
-			// int thirdInd = rand()%((cloud->points.size() - 1) + 1);
-			// // cout << "first rand " << firstInd << " sec rand"  << secInd << "\n";
-			// while (firstInd == secInd) {
-			// 	secInd = rand()%((cloud->points.size() - 1) + 1);
-			// }
-			// int _i = 0;
+	std::unordered_set<int> inliersIter;
+	std::set<int> rand_set;
+	// int arr[3];
+	while (maxIterations > 0) {
+		// cloud->points.size();
+		// int firstInd = rand()%((cloud->points.size() - 1) + 1);
+		// int secInd = rand()%((cloud->points.size() - 1) + 1);
+		// int thirdInd = rand()%((cloud->points.size() - 1) + 1);
+		// // cout << "first rand " << firstInd << " sec rand"  << secInd << "\n";
+		// while (firstInd == secInd) {
+		// 	secInd = rand()%((cloud->points.size() - 1) + 1);
+		// }
+		// int _i = 0;
+			std::uniform_int_distribution<size_t> dis(0, cloud->points.size() - 1);
+
 			while (rand_set.size() < 3) {
 				// int rand = rand()%((cloud->points.size() - 1) + 1);
-				rand_set.insert(rand()%((cloud->points.size() - 1) + 1));
+				rand_set.insert(dis(gen));
 				// arr[_i] = 
 			}
+			// cout << rand_set.size() << "\n";
+			std::set<int>::iterator it= rand_set.begin();
 			
 			// Get the points and get the coeffcients
-			pcl::PointXYZ p1 = cloud->points[*std::next(rand_set.begin(), 0)];
-			pcl::PointXYZ p2 = cloud->points[*std::next(rand_set.begin(), 1)];
-			pcl::PointXYZ p3 = cloud->points[*std::next(rand_set.begin(), 2)];
+			pcl::PointXYZ p1 = cloud->points[*it];
+			it++;
+			pcl::PointXYZ p2 = cloud->points[*it];
+			it++;
+			pcl::PointXYZ p3 = cloud->points[*it];
 
 			// p1 is reference and v1 vector travels from p1 to p2.
 			// vector p1 to p3
@@ -116,7 +121,7 @@ std::unordered_set<int> Ransac(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, int ma
 			float inliers = 0;
 			for (int i = 0; i < cloud->points.size(); i++) {
 				pcl::PointXYZ p = cloud->points[i];
-				int d = std::abs(A*(p.x) + B*(p.y) + C*(p.z) + D)/(std::sqrt(A*A + B*B + C*C));
+				float d = std::abs(A*(p.x) + B*(p.y) + C*(p.z) + D)/(std::sqrt(A*A + B*B + C*C));
 				if (d < distanceTol) {
 					inliersIter.insert(i);
 					inliers++;
@@ -129,6 +134,7 @@ std::unordered_set<int> Ransac(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, int ma
 			} 
 			inliersIter.clear();
 			maxIterations--;
+			// cout << maxIterations << "\n";
 		}
 	// }
 	// For max iterations 
@@ -155,7 +161,7 @@ int main ()
 	
 
 	// TODO: Change the max iteration and distance tolerance arguments for Ransac function
-	std::unordered_set<int> inliers = Ransac(cloud, 50, 0.5);
+	std::unordered_set<int> inliers = Ransac(cloud, 10000, 0.5);
 
 	pcl::PointCloud<pcl::PointXYZ>::Ptr  cloudInliers(new pcl::PointCloud<pcl::PointXYZ>());
 	pcl::PointCloud<pcl::PointXYZ>::Ptr cloudOutliers(new pcl::PointCloud<pcl::PointXYZ>());
