@@ -57,6 +57,8 @@ void simpleHighway(pcl::visualization::PCLVisualizer::Ptr& viewer)
     // TODO:: Create point processor
     // ProcessPointClouds *processor = new ProcessPointClouds();
     int clusterId = 0;
+    std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> cloudClusters = pointProcessor->Clustering(segCloud.second, 1.0, 3, 30);
+
     std::vector<Color> colors = {Color(1,0,0), Color(0,1,0), Color(0,0,1)};
 
     for(pcl::PointCloud<pcl::PointXYZ>::Ptr cluster : cloudClusters)
