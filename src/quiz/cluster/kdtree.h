@@ -71,9 +71,10 @@ struct KdTree
 				ids.push_back(node->id);
 			}
 		int switcher = depth%2;
-		if (target[switcher] < node->point[switcher]) {
+		if (target[switcher] - distanceTol < node->point[switcher]) {
 			searchHelper(target, distanceTol, ids, node->left, depth+1);
-		} else {
+		} 
+		if (target[switcher] + distanceTol > node->point[switcher]){
 			searchHelper(target, distanceTol, ids, node->right, depth+1);
 		}
 	}
