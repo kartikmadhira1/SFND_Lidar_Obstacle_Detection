@@ -75,6 +75,20 @@ void render2DTree(Node* node, pcl::visualization::PCLVisualizer::Ptr& viewer, Bo
 
 }
 
+void proximity(const std::vector<std::vector<float>>& points, 
+				std::vector<bool> &visited, int ind, KdTree *tree,
+					std::vector<int> &new_cluster) {
+
+	visited[ind] = true;
+	// std::vector<int> new_cluster;
+	new_cluster.emplace_back(ind);
+	std::vector<int> new_points = tree->search(points[ind], 3.0);
+	for (int i = 0; i < new_points.size(); i++) {
+		if (visited[new_points[i]] == false) {
+			proximity(points, visited, new_points[i], tree, new_cluster);
+		}
+	}
+}
 std::vector<std::vector<int>> euclideanCluster(const std::vector<std::vector<float>>& points, KdTree* tree, float distanceTol)
 {
 
@@ -91,20 +105,7 @@ std::vector<std::vector<int>> euclideanCluster(const std::vector<std::vector<flo
 }
 
 
-void proximity(const std::vector<std::vector<float>>& points, 
-				std::vector<bool> &visited, int ind, KdTree *tree,
-					std::vector<int> &new_cluster) {
 
-	visited[ind] = true;
-	// std::vector<int> new_cluster;
-	new_cluster.emplace_back(points[ind]);
-	std::vector<int> new_points = tree->search(points[ind], 3.0);
-	for (int i = 0; i < new_points.size(); i++) {
-		if (visited[i] == false) {
-			proximity(points, visited, new_points[i], tree, new_cluster);
-		}
-	}
-}
 
 
 
