@@ -26,27 +26,21 @@ typename pcl::PointCloud<PointT>::Ptr ProcessPointClouds<PointT>::FilterCloud(ty
 
     // Time segmentation process
     auto startTime = std::chrono::steady_clock::now();
-    pcl::PCLPointCloud2::Ptr cloud_filtered (new pcl::PCLPointCloud2 ());
+    typename pcl::PointCloud<PointT>::Ptr cloudFiltered(new pcl::PointCloud<PointT>);
 
-    pcl::PCLPointCloud2::Ptr cloud_in (new pcl::PCLPointCloud2 ());
-    pcl::toPCLPointCloud2(cloud, *cloud_in);
-    pcl::PCLPointCloud2::Ptr cloud_filtered (new pcl::PCLPointCloud2 ());
+   
 
-    pcl::VoxelGrid<pcl::PCLPointCloud2> sor;
-    sor.setInputCloud (cloud_in);
+    pcl::VoxelGrid<PointT> sor;
+    sor.setInputCloud (cloud);
     sor.setLeafSize (filterRes, filterRes, filterRes);
-    sor.filter (*cloud_filtered);
-
-    typename pcl::PointCloud<PointT>::Ptr output_concat(new pcl::PointCloud<PointT>);
-
-    pcl::fromPCLPointCloud2(*cloud_filtered, *output_concat);
+    sor.filter (*cloudFiltered);
 
     typename pcl::PointCloud<PointT>::Ptr cloudRegion(new pcl::PointCloud<PointT>);
 
     pcl::CropBox<PointT> region(true);
     region.setMin(minPoint);
     region.setMax(maxPoint);
-    region.setInputCloud(cloud_filtered);
+    region.setInputCloud(cloudFiltered);
     region.filter(*cloudRegion);
 
     std::vector<int> indices;
@@ -63,7 +57,7 @@ typename pcl::PointCloud<PointT>::Ptr ProcessPointClouds<PointT>::FilterCloud(ty
     }
 
     pcl::ExtractIndices<PointT> extract;
-    extract.setInputPointCloud(cloudRegion);
+    extract.setInputCloud(cloudRegion);
     extract.setIndices(inliers);
     extract.setNegative(true);
     extract.filter(*cloudRegion);
